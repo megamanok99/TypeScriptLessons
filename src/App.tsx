@@ -4,6 +4,12 @@ import './App.css';
 import axios from 'axios';
 import 'antd/dist/antd.css';
 import debounce from 'lodash/debounce';
+import classNames from 'classnames';
+import * as am5 from '@amcharts/amcharts5';
+import * as am5xy from '@amcharts/amcharts5/xy';
+import am5themes_Animated from '@amcharts/amcharts5/themes/Animated';
+import moment from 'moment';
+import GraphicXY from './components/GraphXY';
 const logo = require('./test.svg') as string;
 const { Option } = Select;
 function App() {
@@ -11,12 +17,20 @@ function App() {
   const [listOfShop, setListOfShop] = React.useState([]);
 
   const [currentTown, setCurrentTown] = React.useState([]);
-  const [currentShop, setCurrentShop] = React.useState([]);
+  interface CurrentShop {
+    value: string;
+  }
+  const [currentShop, setCurrentShop] = React.useState<CurrentShop>({
+    value: '',
+  });
 
-  const [aboutItem, setAboutItem] = React.useState('');
+  const [aboutItem, setAboutItem] = React.useState();
 
   const [clickTest, setclickTest] = React.useState(false);
-  const [value, setValue] = React.useState([]);
+  interface CurrentValue {
+    value: string;
+  }
+  const [value, setValue] = React.useState<CurrentValue[]>([]);
   const [valueCur, setvalueCur] = React.useState([]);
 
   React.useEffect(() => {
@@ -36,7 +50,17 @@ function App() {
     getListOfShop(rest);
     setCurrentTown(rest);
   }
+
+  let searchBlock = classNames({
+    mainContent: true,
+    mainContentLoaded: clickTest,
+  });
+  let searchTitle = classNames({
+    mainContentTitle: true,
+    mainContentTitleLoaded: clickTest,
+  });
   async function getListOfShop(arr: any) {
+    console.log(`e`, arr);
     try {
       const listOfShop = await axios.post(
         `https://ruprice.flareon.ru/api/entities/retailer-by-city`,
@@ -78,14 +102,22 @@ function App() {
         const fetchId = fetchRef.current;
         setOptions([]);
         setFetching(true);
-
-        fetchOptions(value).then((newOptions) => {
+        console.log(`value`, value);
+        fetchOptions(value).then((newOptions: any) => {
+          console.log('newOptions', newOptions);
           if (fetchId !== fetchRef.current) {
             // for fetch callback order
             return;
           }
-
-          setOptions(newOptions);
+          setOptions(
+            newOptions.data.map((el: any) => {
+              return {
+                value: el.title,
+                label: el.title,
+                id: el.ids,
+              };
+            }),
+          );
           setFetching(false);
         });
       };
@@ -114,7 +146,7 @@ function App() {
       cityIds: currentTown.map((el: any) => el.id),
       partOfDescription: searchedText,
       // retailerId: currentShop.id,
-      retailerName: currentShop,
+      retailerName: currentShop.value,
     });
   }
   async function getItemById(arr: any) {
@@ -123,11 +155,11 @@ function App() {
         ...arr[0].id,
       ]);
       setAboutItem(itemInfo.data);
-      setclickTest(true);
     } catch (error) {
       message.error('не удалось получить информацию по товару');
     }
   }
+
   return (
     <div className="App">
       <div className="header">
@@ -144,24 +176,26 @@ function App() {
               <a className="menuLink">Приколы</a>
             </li>
           </ul>
-          <nav className="singInWrapper">
+          {/* <nav className="singInWrapper">
             <a className="sinIn" href="/singin">
               еще больше проектов
             </a>
-          </nav>
+          </nav> */}
         </div>
       </div>
       <div className="mainWrapper">
-        <div className="mainContent">
-          <div className="mainContentTitle">
-            FLAREON<span className="mainContentTitleThin"> — ГРАФИК ИЗМЕНЕНИЯ ЦЕН ТОВАРА</span>
+        <div className={searchBlock}>
+          <div className={searchTitle}>
+            RUPRICE<span className="mainContentTitleThin"> — ГРАФИК ИЗМЕНЕНИЯ ЦЕН ТОВАРА</span>
           </div>
           <div className="wrapperSearch">
-            <Row style={{ width: '100%' }} wrap gutter={[16, 32]}>
-              <Col span={6}>
+            <Row style={{ width: '100%' }} wrap align="middle" justify="center" gutter={[16, 32]}>
+              <Col xs={24} sm={24} md={24} lg={16} xl={8} xxl={8}>
                 <Select
+                  maxTagCount={'responsive'}
                   className="selectorForm"
                   mode="multiple"
+                  size="large"
                   allowClear
                   style={{ width: '100%' }}
                   placeholder="Выбор города"
@@ -173,10 +207,11 @@ function App() {
                   ))}
                 </Select>
               </Col>
-              <Col span={4}>
+              <Col xs={24} sm={24} md={8} lg={8} xl={5} xxl={4}>
                 <Select
                   className="selectorForm"
                   allowClear
+                  size="large"
                   style={{ width: '100%' }}
                   placeholder="Выбор магазина"
                   onChange={getCurrentShop}>
@@ -187,25 +222,28 @@ function App() {
                   ))}
                 </Select>
               </Col>
-              <Col span={10}>
+              <Col xs={24} sm={24} md={16} lg={16} xl={8} xxl={8}>
                 <DebounceSelect
                   className="selectorForm"
                   mode="multiple"
+                  size="large"
                   value={[]}
-                  placeholder={value[0] || 'Выбор товара'}
+                  placeholder={value[0]?.value || 'Выбор товара'}
                   fetchOptions={fetchUserList}
                   onChange={(newValue: any, vb: any) => {
+                    console.log('here', newValue);
                     setValue(newValue);
                     getItemById(vb);
-                    console.log('here', vb);
                   }}
                   style={{
                     width: '100%',
                   }}
                 />
               </Col>
-              <Col span={2}>
-                <Button className="searchBtn">Найти</Button>
+              <Col xs={24} sm={24} md={24} lg={8} xl={3} xxl={4}>
+                <Button size="large" className="searchBtn" onClick={() => setclickTest(true)}>
+                  Найти
+                </Button>
               </Col>
             </Row>
           </div>
@@ -215,9 +253,24 @@ function App() {
             width="100%"
             height="100%"
             id="svg"
-            viewBox="0 0 1440 250"
+            viewBox="0 0 1440 330"
             xmlns="http://www.w3.org/2000/svg"
-            className="transition duration-300 ease-in-out delay-150">
+            className="transition duration-300 ease-in-out delay-150 ">
+            <style></style>
+            <defs>
+              <linearGradient id="gradient" x1="0%" x2="100%">
+                <stop offset="5%" stop-color="#002bdc88"></stop>
+                <stop offset="100%" stop-color="#8ed1fc88"></stop>
+              </linearGradient>
+            </defs>
+            <path
+              d="M 0,400 C 0,400 0,133 0,133 C 171.2,131.66666666666666 342.4,130.33333333333331 502,130 C 661.6,129.66666666666669 809.5999999999999,130.33333333333334 964,131 C 1118.4,131.66666666666666 1279.2,132.33333333333331 1440,133 C 1440,133 1440,400 1440,400 Z"
+              stroke="none"
+              stroke-width="0"
+              fill="url(#gradient)"
+              className="transition-all duration-300 ease-in-out delay-150 path-0"
+              transform="rotate(-180 720 200)"></path>
+            <style></style>
             <defs>
               <linearGradient id="gradient" x1="0%" y1="50%" x2="100%" y2="50%">
                 <stop offset="5%" stop-color="#002bdcff"></stop>
@@ -225,11 +278,11 @@ function App() {
               </linearGradient>
             </defs>
             <path
-              d="M 0,400 C 0,400 0,200 0,200 C 105.25358851674642,184.80382775119617 210.50717703349284,169.60765550239233 315,171 C 419.49282296650716,172.39234449760767 523.2248803827752,190.3732057416268 602,203 C 680.7751196172248,215.6267942583732 734.5933014354066,222.89952153110048 821,224 C 907.4066985645934,225.10047846889952 1026.4019138755982,220.0287081339713 1135,215 C 1243.5980861244018,209.9712918660287 1341.7990430622008,204.98564593301435 1440,200 C 1440,200 1440,400 1440,400 Z"
+              d="M 0,400 C 0,400 0,266 0,266 C 207.46666666666664,259.73333333333335 414.9333333333333,253.46666666666664 558,261 C 701.0666666666667,268.53333333333336 779.7333333333333,289.8666666666667 916,293 C 1052.2666666666667,296.1333333333333 1246.1333333333332,281.06666666666666 1440,266 C 1440,266 1440,400 1440,400 Z"
               stroke="none"
               stroke-width="0"
               fill="url(#gradient)"
-              className="transition-all duration-300 ease-in-out delay-150 path-0"
+              className="transition-all duration-300 ease-in-out delay-150 path-1"
               transform="rotate(-180 720 200)"></path>
           </svg>
         </div>
@@ -239,6 +292,7 @@ function App() {
             Следите за графиком изменения цены товара <br></br> в реальном времени
           </div>
         </div>
+        <GraphicXY aboutItem={aboutItem} />
       </div>
     </div>
   );
