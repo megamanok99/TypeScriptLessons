@@ -4,10 +4,12 @@ import './App.css';
 import axios from 'axios';
 import 'antd/dist/antd.css';
 import debounce from 'lodash/debounce';
+import { DebounceSelectProps, TypeCities } from './types';
+// import SearchPanel from './components/SearchPanel';
 const logo = require('./test.svg') as string;
 const { Option } = Select;
 function App() {
-  const [listOfCities, setListOfCities] = React.useState([]);
+  const [listOfCities, setListOfCities] = React.useState<TypeCities[]>([]);
   const [listOfShop, setListOfShop] = React.useState([]);
 
   const [currentTown, setCurrentTown] = React.useState([]);
@@ -57,12 +59,6 @@ function App() {
     return arr.map((el: any) => {
       return el.id;
     });
-  }
-
-  interface DebounceSelectProps<ValueType = any>
-    extends Omit<SelectProps<ValueType>, 'options' | 'children'> {
-    fetchOptions: (search: string) => Promise<ValueType[]>;
-    debounceTimeout?: number;
   }
 
   function DebounceSelect<
@@ -156,6 +152,16 @@ function App() {
           <div className="mainContentTitle">
             FLAREON<span className="mainContentTitleThin"> — ГРАФИК ИЗМЕНЕНИЯ ЦЕН ТОВАРА</span>
           </div>
+          {/* <SearchPanel
+            getCurrentCities={getCurrentCities}
+            listOfCities={listOfCities}
+            getCurrentShop={getCurrentShop}
+            listOfShop={listOfShop}
+            setValue={setValue}
+            getItemById={getItemById}
+            fetchUserList={fetchUserList}
+            value={value}
+          /> */}
           <div className="wrapperSearch">
             <Row style={{ width: '100%' }} wrap gutter={[16, 32]}>
               <Col span={6}>
