@@ -1,19 +1,19 @@
 import { Button, Col, Row, Select, SelectProps, Spin } from 'antd';
 import React, { FC } from 'react';
 import debounce from 'lodash/debounce';
-import { DebounceSelectProps, TypeCities } from '../../types';
+import { DebounceSelectProps, TypeCities, UserValue } from '../../types';
 const { Option } = Select;
 interface SearchPanelProps {
   name: string;
   id: number;
-  listOfCities: TypeCities;
-  getCurrentCities: string[];
-
-  getCurrentShop: string[];
+  listOfCities: TypeCities[];
+  getCurrentCities: any;
+  getItemById: any;
+  getCurrentShop: any;
   listOfShop: string[];
-  setValue: string[];
-  getItemById: string[];
-  fetchUserList: DebounceSelectProps;
+  setValue: any;
+
+  fetchUserList(searchedText: string): Promise<UserValue[]>;
   value: string[];
 }
 const SearchPanel: FC<SearchPanelProps> = ({
