@@ -4,7 +4,8 @@ import './App.css';
 import axios from 'axios';
 import 'antd/dist/antd.css';
 import debounce from 'lodash/debounce';
-import { DebounceSelectProps, TypeCities } from './types';
+import { DebounceSelectProps, TypeCities, UserValue, CurrentValue } from './types';
+import SearchPanel from './components/SearchPanel';
 // import SearchPanel from './components/SearchPanel';
 import classNames from 'classnames';
 import * as am5 from '@amcharts/amcharts5';
@@ -29,9 +30,7 @@ function App() {
   const [aboutItem, setAboutItem] = React.useState();
 
   const [clickTest, setclickTest] = React.useState(false);
-  interface CurrentValue {
-    value: string;
-  }
+
   const [value, setValue] = React.useState<CurrentValue[]>([]);
   const [valueCur, setvalueCur] = React.useState([]);
 
@@ -84,7 +83,11 @@ function App() {
       return el.id;
     });
   }
-
+  interface DebounceSelectProps<ValueType = any>
+    extends Omit<SelectProps<ValueType>, 'options' | 'children'> {
+    fetchOptions: (search: string) => Promise<ValueType[]>;
+    debounceTimeout?: number;
+  }
   function DebounceSelect<
     ValueType extends { key?: string; label: React.ReactNode; value: string | number } = any,
   >({ fetchOptions, debounceTimeout = 800, ...props }: DebounceSelectProps) {
@@ -132,12 +135,8 @@ function App() {
       />
     );
   }
-  interface UserValue {
-    label: string;
-    value: string;
-  }
 
-  async function fetchUserList(searchedText: any): Promise<UserValue[]> {
+  async function fetchUserList(searchedText: string): Promise<UserValue[]> {
     return axios.post('https://ruprice.flareon.ru/api/entities/search-by-params', {
       cityIds: currentTown.map((el: any) => el.id),
       partOfDescription: searchedText,
@@ -193,6 +192,8 @@ function App() {
             getItemById={getItemById}
             fetchUserList={fetchUserList}
             value={value}
+            name={''}
+            id={0}
           /> */}
           <div className="wrapperSearch">
             <Row style={{ width: '100%' }} wrap align="middle" justify="center" gutter={[16, 32]}>
