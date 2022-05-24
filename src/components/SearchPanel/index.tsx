@@ -1,7 +1,7 @@
 import { Button, Col, Row, Select, SelectProps, Spin } from 'antd';
 import React, { FC } from 'react';
 import debounce from 'lodash/debounce';
-import { DebounceSelectProps, TypeCities, UserValue } from '../../types';
+import { CurrentValue, DebounceSelectProps, TypeCities, UserValue } from '../../types';
 const { Option } = Select;
 interface SearchPanelProps {
   name: string;
@@ -14,7 +14,7 @@ interface SearchPanelProps {
   setValue: any;
 
   fetchUserList(searchedText: string): Promise<UserValue[]>;
-  value: string[];
+  value: CurrentValue[];
 }
 const SearchPanel: FC<SearchPanelProps> = ({
   getCurrentCities,
@@ -108,7 +108,7 @@ const SearchPanel: FC<SearchPanelProps> = ({
             className="selectorForm"
             mode="multiple"
             value={[]}
-            placeholder={value[0] || 'Выбор товара'}
+            placeholder={'Выбор товара'}
             fetchOptions={fetchUserList}
             onChange={(newValue: any, vb: any) => {
               setValue(newValue);

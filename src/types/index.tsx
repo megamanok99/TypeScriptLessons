@@ -8,6 +8,9 @@ export interface UserValue {
   label: string;
   value: string;
 }
+export interface CurrentValue {
+  value: string;
+}
 
 export interface DebounceSelectProps<ValueType = any>
   extends Omit<SelectProps<ValueType>, 'options' | 'children'> {
