@@ -10,6 +10,8 @@ import * as am5xy from '@amcharts/amcharts5/xy';
 import am5themes_Animated from '@amcharts/amcharts5/themes/Animated';
 import moment from 'moment';
 import GraphicXY from './components/GraphXY';
+import Table from './components/Table';
+import TableData from './components/Table';
 const logo = require('./test.svg') as string;
 const { Option } = Select;
 function App() {
@@ -30,7 +32,7 @@ function App() {
   interface CurrentValue {
     value: string;
   }
-  const [value, setValue] = React.useState<CurrentValue[]>([]);
+  const [value, setValue] = React.useState<CurrentValue>();
   const [valueCur, setvalueCur] = React.useState([]);
 
   React.useEffect(() => {
@@ -223,7 +225,7 @@ function App() {
                 </Select>
               </Col>
               <Col xs={24} sm={24} md={16} lg={16} xl={8} xxl={8}>
-                <DebounceSelect
+                {/* <DebounceSelect
                   className="selectorForm"
                   mode="multiple"
                   size="large"
@@ -238,11 +240,23 @@ function App() {
                   style={{
                     width: '100%',
                   }}
+                /> */}
+                <Input
+                  value={value}
+                  onChange={(newValue: any) => {
+                    setValue(newValue.target.value);
+                  }}
+                  style={{
+                    width: '100%',
+                  }}
                 />
               </Col>
               <Col xs={24} sm={24} md={24} lg={8} xl={3} xxl={4}>
                 <Button size="large" className="searchBtn" onClick={() => setclickTest(true)}>
                   Найти
+                </Button>
+                <Button size="large" className="searchBtn" onClick={() => setclickTest(true)}>
+                  Найти табл
                 </Button>
               </Col>
             </Row>
@@ -292,6 +306,7 @@ function App() {
             Следите за графиком изменения цены товара <br></br> в реальном времени
           </div>
         </div>
+        <TableData />
         <GraphicXY aboutItem={aboutItem} />
       </div>
     </div>
